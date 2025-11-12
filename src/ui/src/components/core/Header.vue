@@ -52,7 +52,7 @@ const selectConnection = (e, connectionId) => {
   <header class="flex-shrink-0">
     <ul class="flex-fill nav nav-tabs" id="tabs">
       <li class="nav-item">
-        <button class="nav-link">File</button>
+        <button class="nav-link" title="Settings"><i class="bi bi-wrench"></i></button>
       </li>
       <li v-for="connection in connections" class="nav-item">
         <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)">
