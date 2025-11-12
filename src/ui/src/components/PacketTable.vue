@@ -3,6 +3,7 @@ import { EventBus } from '@/utils/event-bus';
 import { nextTick, onBeforeUnmount, ref, useTemplateRef } from 'vue';
 import PacketRow from '@/components/PacketRow.vue';
 import { BackendWebSocket } from '@/utils/backend-websocket';
+import { eventListener } from '@/utils/misc';
 
 const selectedPacket = ref(null);
 const packets = ref([]);
@@ -36,6 +37,26 @@ const selectPacket = (e, packet) => {
 
   EventBus.$emit('select-packet', packet)
 };
+
+eventListener(window, 'keydown', (e) => {
+  // arrow keys select previous/next packet
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+
+    // If we dont have a selected packet, do nothing
+    if (!selectedPacket.value) {
+      return;
+    }
+
+    const currentRow = selectedPacket.value;
+    const targetRow = e.key === 'ArrowUp' ? currentRow.previousElementSibling : currentRow.nextElementSibling;
+    if (targetRow) {
+      targetRow.click();
+
+      // TODO Scroll into view if needed
+    }
+  }
+});
 </script>
 
 <template>
