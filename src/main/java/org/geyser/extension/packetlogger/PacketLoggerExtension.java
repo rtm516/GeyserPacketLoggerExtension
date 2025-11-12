@@ -89,6 +89,11 @@ public class PacketLoggerExtension implements Extension {
     }
 
     @Subscribe
+    public void onSessionLogin(SessionLoginEvent event) {
+        webApplication.broadcastMessage(new WebSocketMessage("auth", new AuthData(event.connection().bedrockUsername())));
+    }
+
+    @Subscribe
     public void onSessionDisconnect(SessionDisconnectEvent event) {
         GeyserConnection connection = event.connection();
         String key = String.valueOf(connection.hashCode());
