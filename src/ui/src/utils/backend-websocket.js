@@ -43,14 +43,6 @@ class BackendWebSocketHandler extends EventTarget {
   isConnected () {
     return this.socket && this.socket.readyState === WebSocket.OPEN
   }
-
-  on (type, listener) {
-    this.addEventListener(type, listener)
-
-    onBeforeUnmount(() => {
-      this.removeEventListener(type, listener)
-    })
-  }
 }
 
 export const BackendWebSocket = new BackendWebSocketHandler()

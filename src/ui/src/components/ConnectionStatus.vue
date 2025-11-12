@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { BackendWebSocket } from '@/utils/backend-websocket';
+import { eventListener } from '@/utils/misc';
 
 const connected = ref(BackendWebSocket.isConnected());
 
@@ -8,8 +9,8 @@ function onStatusChanged(event) {
   connected.value = event.type === 'connected';
 }
 
-BackendWebSocket.on('connected', onStatusChanged);
-BackendWebSocket.on('disconnected', onStatusChanged);
+eventListener(BackendWebSocket, 'connected', onStatusChanged);
+eventListener(BackendWebSocket, 'disconnected', onStatusChanged);
 </script>
 
 <template>

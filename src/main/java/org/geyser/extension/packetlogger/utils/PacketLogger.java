@@ -6,7 +6,7 @@ import org.geyser.extension.packetlogger.Constants;
 import org.geyser.extension.packetlogger.types.PacketDirection;
 import org.geyser.extension.packetlogger.types.PacketSide;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
-import org.geyser.extension.packetlogger.types.PacketData;
+import org.geyser.extension.packetlogger.types.messages.PacketData;
 import org.geyser.extension.packetlogger.web.WebApplication;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.UUID;
 
 public class PacketLogger {
     private final static DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss:SSS").withZone(ZoneId.systemDefault());;
@@ -29,6 +30,7 @@ public class PacketLogger {
     private final GeyserConnection connection;
     private final WebApplication application;
     private final long startedAt;
+    private final String connectionId;
 
     private FileWriter packetLogWriter; // TODO Look at not using FileWriter directly for performance
     private boolean hasBeenRenamed;
@@ -38,6 +40,7 @@ public class PacketLogger {
         this.logger = logger;
         this.connection = connection;
         this.application = application;
+        this.connectionId = String.valueOf(connection.hashCode());
 
         this.startedAt = System.currentTimeMillis();
         this.hasBeenRenamed = false;
@@ -96,7 +99,7 @@ public class PacketLogger {
                     packet
                 ));
             }
-            application.broadcastMessage(new WebSocketMessage("packet", new PacketData(time, side, direction, packetName, 0, packet)));
+            application.broadcastMessage(new WebSocketMessage("packet", new PacketData(connectionId, time, side, direction, packetName, 0, packet)));
         } catch (IOException e) {
             this.logger.error("Failed to log packet: " + e.getMessage());
         }

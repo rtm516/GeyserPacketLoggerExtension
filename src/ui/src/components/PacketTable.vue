@@ -1,8 +1,9 @@
 <script setup>
 import { EventBus } from '@/utils/event-bus';
-import { nextTick, onBeforeUnmount, ref, useTemplateRef } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 import PacketRow from '@/components/PacketRow.vue';
 import { BackendWebSocket } from '@/utils/backend-websocket';
+import { ConnectionHandler } from '@/utils/connection-handler';
 import { eventListener } from '@/utils/misc';
 
 const selectedPacket = ref(null);
@@ -11,6 +12,10 @@ const scrollArea = useTemplateRef('scrollArea');
 
 async function onPacketReceived(event) {
   const packetInfo = event.detail
+
+  if (ConnectionHandler.getActiveConnectionId() !== packetInfo.connectionId) {
+    return;
+  }
 
   const isScrolledToBottom = scrollArea.value.scrollHeight - scrollArea.value.clientHeight <= scrollArea.value.scrollTop + 1;
 
@@ -23,17 +28,29 @@ async function onPacketReceived(event) {
   }
 }
 
-BackendWebSocket.on('message-packet', onPacketReceived);
+eventListener(BackendWebSocket, 'message-packet', onPacketReceived);
 
-const selectPacket = (e, packet) => {
+eventListener(ConnectionHandler, 'active-connection-changed', async () => {
+  packets.value = ConnectionHandler.getActiveConnection()?.packets || [];
+  selectPacket(null, null);
+
+  await nextTick();
+  scrollArea.value.scrollTop = scrollArea.value.scrollHeight
+});
+
+const onSelectPacket = (e, packet) => {
+  selectPacket(e.currentTarget, packet);
+}
+
+const selectPacket = (newSelection, packet) => {
   // Prevent re-selecting the same packet
-  if (selectedPacket.value === e.currentTarget) {
+  if (selectedPacket.value === newSelection) {
     return;
   }
 
-  e.currentTarget.classList.add('table-active');
+  newSelection?.classList.add('table-active');
   selectedPacket.value?.classList.remove('table-active');
-  selectedPacket.value = e.currentTarget;
+  selectedPacket.value = newSelection;
 
   EventBus.$emit('select-packet', packet)
 };
@@ -70,7 +87,7 @@ eventListener(window, 'keydown', (e) => {
         </tr>
       </thead>
       <tbody>
-        <PacketRow v-for="(packet, index) in packets" :key="index" :packetInfo="packet" @click="(e) => selectPacket(e, packet)" />
+        <PacketRow v-for="(packet, index) in packets" :key="index" :packetInfo="packet" @click="(e) => onSelectPacket(e, packet)" />
       </tbody>
     </table>
   </div>

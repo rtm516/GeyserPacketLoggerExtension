@@ -4,16 +4,18 @@ import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockPacketDefinition;
 import org.cloudburstmc.protocol.bedrock.codec.v859.Bedrock_v859;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
-import org.geyser.extension.packetlogger.types.AuthData;
+import org.geyser.extension.packetlogger.types.messages.AuthData;
 import org.geyser.extension.packetlogger.types.PacketDirection;
 import org.geyser.extension.packetlogger.types.PacketSide;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
+import org.geyser.extension.packetlogger.types.messages.GenericData;
 import org.geyser.extension.packetlogger.utils.PacketLogger;
 import org.geyser.extension.packetlogger.web.WebApplication;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.event.bedrock.SessionDefineNetworkChannelsEvent;
 import org.geysermc.geyser.api.event.bedrock.SessionDisconnectEvent;
+import org.geysermc.geyser.api.event.bedrock.SessionJoinEvent;
 import org.geysermc.geyser.api.event.bedrock.SessionLoginEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserShutdownEvent;
@@ -89,8 +91,13 @@ public class PacketLoggerExtension implements Extension {
     }
 
     @Subscribe
+    public void onSessionJoin(SessionJoinEvent event) {
+        webApplication.broadcastMessage(new WebSocketMessage("join", new GenericData(event.connection().hashCode())));
+    }
+
+    @Subscribe
     public void onSessionLogin(SessionLoginEvent event) {
-        webApplication.broadcastMessage(new WebSocketMessage("auth", new AuthData(event.connection().bedrockUsername())));
+        webApplication.broadcastMessage(new WebSocketMessage("auth", new AuthData(String.valueOf(event.connection().hashCode()), event.connection().bedrockUsername())));
     }
 
     @Subscribe
@@ -98,6 +105,8 @@ public class PacketLoggerExtension implements Extension {
         GeyserConnection connection = event.connection();
         String key = String.valueOf(connection.hashCode());
         PacketLogger packetLogger = packetLoggers.get(key);
+
+        webApplication.broadcastMessage(new WebSocketMessage("leave", new GenericData(key)));
 
         if (packetLogger != null) {
             try {

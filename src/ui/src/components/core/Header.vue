@@ -1,15 +1,50 @@
-<script setup lang="ts">
+<script setup>
 import ConnectionStatus from '@/components/ConnectionStatus.vue';
 import { ref } from 'vue';
-import { BackendWebSocket } from '@/utils/backend-websocket';
+import { ConnectionHandler } from '@/utils/connection-handler';
+import { eventListener } from '@/utils/misc';
 
-const username = ref('Unknown');
-
-function onAuthReceived(event: CustomEvent) {
-  username.value = event.detail.username;
+const initialConnections = []
+for (const [id, connection] of Object.entries(ConnectionHandler.connections)) {
+  initialConnections.push({
+    id: id,
+    username: connection.username,
+    active: connection.active
+  });
 }
 
-BackendWebSocket.on('message-auth', onAuthReceived);
+const connections = ref(initialConnections);
+const activeConnectionId = ref(ConnectionHandler.getActiveConnectionId());
+
+function onConnectionChanged (event) {
+  const connectionInfo = ConnectionHandler.getConnection(event.detail);
+
+  // Find and update existing connection or add new one
+  const existingConnection = connections.value.find(c => c.id === event.detail);
+  if (existingConnection) {
+    existingConnection.username = connectionInfo.username;
+    existingConnection.active = connectionInfo.active;
+    return;
+  }
+
+  connections.value.push({
+    id: event.detail,
+    username: connectionInfo.username,
+    active: connectionInfo.active
+  });
+
+  if (activeConnectionId.value == null) {
+    selectConnection(null, event.detail);
+  }
+}
+
+eventListener(ConnectionHandler, 'connection-created', onConnectionChanged);
+eventListener(ConnectionHandler, 'connection-updated', onConnectionChanged);
+
+const selectConnection = (e, connectionId) => {
+  activeConnectionId.value = connectionId;
+  ConnectionHandler.setActiveConnection(connectionId);
+};
 
 </script>
 
@@ -17,13 +52,13 @@ BackendWebSocket.on('message-auth', onAuthReceived);
   <header class="flex-shrink-0">
     <ul class="flex-fill nav nav-tabs" id="tabs">
       <li class="nav-item">
-        <button class="nav-link active" id="user1-tab">{{ username }}</button>
+        <button class="nav-link">File</button>
       </li>
-      <li class="nav-item">
-        <button class="nav-link" id="user2-tab">User2</button>
-      </li>
-      <li class="nav-item">
-        <button class="nav-link" id="user3-tab">User3</button>
+      <li v-for="connection in connections" class="nav-item">
+        <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)">
+          {{ connection.username || "Unknown" }}
+          <span class="ms-1 p-2 border rounded-circle d-inline-block" :class="{ 'bg-success': connection.active, 'bg-danger': !connection.active }"></span>
+        </button>
       </li>
       <li class="d-flex align-items-center ms-auto me-3">
         <ConnectionStatus />

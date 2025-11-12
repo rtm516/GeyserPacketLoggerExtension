@@ -19,6 +19,8 @@ public class WebSocketHandler implements WebSocketConnectionCallback {
         application.channels.add(channel);
         application.logger.info("Client connected: " + channel.getPeerAddress());
 
+        // TODO Send previous packets
+
         // Setup message receiver
         channel.getReceiveSetter().set(new AbstractReceiveListener() {
             @Override
