@@ -4,11 +4,11 @@ This extension for GeyserMC allows you to log all incoming and outgoing packets 
 ## Features
 - Log packets to files for later analysis
 - Web interface to view logged packets in real-time
+- Packet filtering
 
 ## Todo
  - Change ignore list while running
  - Pause/Resume logging while running
  - Replace packet direction indicators
- - Packet search
  - Send previous packets on websocket connection
  - Request auth info on first packet

@@ -2,7 +2,7 @@
 import { EventBus } from '@/utils/event-bus';
 import { ref, useTemplateRef } from 'vue';
 import { formatPacketTime } from '@/utils/time-format';
-import JsonViewer from './JsonViewer.vue';
+import JsonViewer from '@/components/JsonViewer.vue';
 
 /** @type { { time: string, side: 'BEDROCK' | 'JAVA', direction: 'SERVERBOUND' | 'CLIENTBOUND', packetName: string, packetId: number, packetData: any } | null } */
 const selectedPacket = ref(null);

@@ -1,8 +1,9 @@
 <script setup>
 import ConnectionStatus from '@/components/ConnectionStatus.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ConnectionHandler } from '@/utils/connection-handler';
 import { eventListener } from '@/utils/misc';
+import { EventBus } from '@/utils/event-bus';
 
 const initialConnections = []
 for (const [id, connection] of Object.entries(ConnectionHandler.connections)) {
@@ -15,6 +16,7 @@ for (const [id, connection] of Object.entries(ConnectionHandler.connections)) {
 
 const connections = ref(initialConnections);
 const activeConnectionId = ref(ConnectionHandler.getActiveConnectionId());
+const query = ref('');
 
 function onConnectionChanged (event) {
   const connectionInfo = ConnectionHandler.getConnection(event.detail);
@@ -46,6 +48,10 @@ const selectConnection = (e, connectionId) => {
   ConnectionHandler.setActiveConnection(connectionId);
 };
 
+watch(() => query.value, (newQuery) => {
+  EventBus.$emit('packet-filter', newQuery)
+});
+
 </script>
 
 <template>
@@ -65,5 +71,9 @@ const selectConnection = (e, connectionId) => {
       </li>
     </ul>
     <!-- Search -->
+    <div class="input-group">
+      <span class="input-group-text" id="addon-search"><i class="bi bi-search"></i></span>
+      <input v-model="query" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="addon-search">
+    </div>
   </header>
 </template>
