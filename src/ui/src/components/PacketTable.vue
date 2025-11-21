@@ -31,7 +31,7 @@ async function onPacketReceived(event) {
 eventListener(BackendWebSocket, 'message-packet', onPacketReceived);
 
 eventListener(ConnectionHandler, 'active-connection-changed', async () => {
-  packets.value = ConnectionHandler.getActiveConnection()?.packets || [];
+  packets.value = ConnectionHandler.getActiveConnection()?.packets.slice() || [];
   selectPacket(null, null);
 
   await nextTick();

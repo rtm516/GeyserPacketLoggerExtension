@@ -2,6 +2,7 @@
 import { EventBus } from '@/utils/event-bus';
 import { ref, useTemplateRef } from 'vue';
 import { formatPacketTime } from '@/utils/time-format';
+import JsonViewer from './JsonViewer.vue';
 
 /** @type { { time: string, side: 'BEDROCK' | 'JAVA', direction: 'SERVERBOUND' | 'CLIENTBOUND', packetName: string, packetId: number, packetData: any } | null } */
 const selectedPacket = ref(null);
@@ -27,7 +28,8 @@ EventBus.$on('select-packet', (packetInfo) => {
 
       <div class="card">
         <div class="card-body">
-          <pre class="m-0"><code>{{ JSON.stringify(selectedPacket.packetData, null, 2) }}</code></pre>
+          <JsonViewer v-if="Object.keys(selectedPacket.packetData).length >= 1" :data="selectedPacket.packetData" />
+          <div v-else>No packet data available.</div>
         </div>
       </div>
     </div>

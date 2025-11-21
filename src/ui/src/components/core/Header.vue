@@ -55,7 +55,7 @@ const selectConnection = (e, connectionId) => {
         <button class="nav-link" title="Settings"><i class="bi bi-wrench"></i></button>
       </li>
       <li v-for="connection in connections" class="nav-item">
-        <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)">
+        <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)" :title="connection.id">
           {{ connection.username || "Unknown" }}
           <span class="ms-1 p-2 border rounded-circle d-inline-block" :class="{ 'bg-success': connection.active, 'bg-danger': !connection.active }"></span>
         </button>

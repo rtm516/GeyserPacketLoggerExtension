@@ -1,11 +1,33 @@
 /* global WebSocket, location */
-import { onBeforeUnmount } from 'vue'
 
 class BackendWebSocketHandler extends EventTarget {
   constructor () {
     super()
     this.socket = null
     this.reconnectInterval = 5000
+
+    // If we are in development mode, simulate a WebSocket connection with test data
+    if (import.meta.env.DEV) {
+      setTimeout(async () => {
+        const testPackets = (await import('@/assets/test-packets.json')).default
+
+        console.log('Debug mode enabled: Simulating WebSocket connection')
+        // Send the join and auth data
+        this.dispatchEvent(new CustomEvent('message-join', { detail: { connectionId: 'debug-connection' } }))
+        this.dispatchEvent(new CustomEvent('message-auth', { detail: { connectionId: 'debug-connection', username: 'DebugUser' } }))
+
+        // Send the test packets
+        for (const packet of testPackets) {
+          this.dispatchEvent(new CustomEvent('message-packet', {
+            detail: Object.assign({
+              connectionId: 'debug-connection'
+            }, packet)
+          }))
+        }
+
+        this.dispatchEvent(new CustomEvent('message-leave', { detail: { connectionId: 'debug-connection' } }))
+      }, 100)
+    }
   }
 
   connect () {
