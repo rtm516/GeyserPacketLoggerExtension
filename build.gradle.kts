@@ -25,6 +25,7 @@ repositories {
 dependencies {
     // Geyser API - needed for all extensions
     compileOnly("org.geysermc.geyser:api:$geyserApiVersion-SNAPSHOT")
+    compileOnly("org.geysermc.geyser:core:$geyserApiVersion-SNAPSHOT")
 
     // Bedrock protocol libraries
     compileOnly("org.cloudburstmc.protocol:common:$bedrockProtocolVersion")

@@ -9,7 +9,6 @@ This extension for GeyserMC allows you to log all incoming and outgoing packets 
  - Change ignore list while running
  - Pause/Resume logging while running
  - Replace packet direction indicators
- - Fix numeric packet IDs
  - Packet search
  - Send previous packets on websocket connection
  - Request auth info on first packet

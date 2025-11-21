@@ -23,6 +23,8 @@ import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.network.NetworkChannel;
 import org.geysermc.geyser.api.network.message.Message;
 import org.geysermc.geyser.api.network.message.MessageHandler;
+import org.geysermc.geyser.network.GameProtocol;
+import org.geysermc.geyser.session.GeyserSession;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -59,7 +61,9 @@ public class PacketLoggerExtension implements Extension {
      */
     @Subscribe
     public void onDefineChannels(SessionDefineNetworkChannelsEvent event) throws NoSuchFieldException, IllegalAccessException {
-        BedrockCodec codec = Bedrock_v859.CODEC;
+        // TODO Get this using some form of API when available
+        // TODO Change this post login incase they use a different protocol version
+        BedrockCodec codec = GameProtocol.getBedrockCodec(GameProtocol.DEFAULT_BEDROCK_PROTOCOL);
 
         Field packetsByIdField = BedrockCodec.class.getDeclaredField("packetsById");
         packetsByIdField.setAccessible(true);
@@ -76,14 +80,15 @@ public class PacketLoggerExtension implements Extension {
             if (definition == null) continue; // Skip undefined packet IDs
             BedrockPacket packet = definition.getFactory().get();
 
+            final int finalPacketId = packetId;
             NetworkChannel packetChannel = NetworkChannel.packet("packetlogger-" + packet.getPacketType().name().toLowerCase(), packetId, packet.getClass());
             event.define(packetChannel, Message.Packet.of(() -> packet))
                 .serverbound(message -> {
-                    packetLog.log(PacketSide.BEDROCK, PacketDirection.SERVERBOUND, message.packet());
+                    packetLog.log(PacketSide.BEDROCK, PacketDirection.SERVERBOUND, message.packet(), finalPacketId);
                     return MessageHandler.State.UNHANDLED;
                 })
                 .clientbound(message -> {
-                    packetLog.log(PacketSide.BEDROCK, PacketDirection.CLIENTBOUND, message.packet());
+                    packetLog.log(PacketSide.BEDROCK, PacketDirection.CLIENTBOUND, message.packet(), finalPacketId);
                     return MessageHandler.State.UNHANDLED;
                 })
                 .register();

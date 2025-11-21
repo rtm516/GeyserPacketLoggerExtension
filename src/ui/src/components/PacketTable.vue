@@ -17,12 +17,12 @@ async function onPacketReceived(event) {
     return;
   }
 
-  const isScrolledToBottom = scrollArea.value.scrollHeight - scrollArea.value.clientHeight <= scrollArea.value.scrollTop + 1;
+  const isScrolledToBottom = scrollArea.value != null && (scrollArea.value.scrollHeight - scrollArea.value.clientHeight <= scrollArea.value.scrollTop + 1);
 
   packets.value.push(packetInfo);
 
   // Scroll to bottom if we were already at the bottom
-  if (isScrolledToBottom) {
+  if (scrollArea.value != null && isScrolledToBottom) {
     await nextTick();
     scrollArea.value.scrollTop = scrollArea.value.scrollHeight
   }

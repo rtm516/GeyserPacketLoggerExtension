@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.UUID;
 
 public class PacketLogger {
     private final static DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss:SSS").withZone(ZoneId.systemDefault());;
@@ -80,7 +79,7 @@ public class PacketLogger {
         }
     }
 
-    public void log(PacketSide side, PacketDirection direction, BedrockPacket packet) {
+    public void log(PacketSide side, PacketDirection direction, BedrockPacket packet, int packetId) {
         if (!hasBeenRenamed && packet instanceof PlayStatusPacket) {
             moveLog();
         }
@@ -99,7 +98,7 @@ public class PacketLogger {
                     packet
                 ));
             }
-            application.broadcastMessage(new WebSocketMessage("packet", new PacketData(connectionId, time, side, direction, packetName, 0, packet)));
+            application.broadcastMessage(new WebSocketMessage("packet", new PacketData(connectionId, time, side, direction, packetName, packetId, packet)));
         } catch (IOException e) {
             this.logger.error("Failed to log packet: " + e.getMessage());
         }
