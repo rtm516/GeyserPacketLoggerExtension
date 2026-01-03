@@ -7,10 +7,14 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
-      '/messaging': {
+      '/api/messaging': {
         target: 'ws://127.0.0.1:8082',
         ws: true,
         rewriteWsOrigin: true
+      },
+      '/api': {
+        target: 'http://127.0.0.1:8082/',
+        changeOrigin: true
       }
     }
   },

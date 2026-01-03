@@ -12,6 +12,7 @@ import io.undertow.websockets.core.CloseMessage;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import org.geyser.extension.packetlogger.Constants;
+import org.geyser.extension.packetlogger.types.Settings;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 
@@ -30,10 +31,16 @@ public class WebApplication {
 
         PathHandler pathHandler = new PathHandler();
 
-
         // WebSocket handler
         WebSocketConnectionCallback callback = new WebSocketHandler(this);
-        pathHandler.addExactPath("/messaging", new WebSocketProtocolHandshakeHandler(callback));
+        pathHandler.addExactPath("/api/messaging", new WebSocketProtocolHandshakeHandler(callback));
+
+        // Settings
+        pathHandler.addExactPath("/api/settings", exchange -> {
+            String response = Constants.GSON.toJson(new Settings(true, true, 8082, Constants.IGNORED_PACKETS));
+            exchange.getResponseHeaders().put(HttpString.tryFromString("Content-Type"), "application/json");
+            exchange.getResponseSender().send(response);
+        });
 
         // Static files
         ResourceHandler resourceHandler = new ResourceHandler(

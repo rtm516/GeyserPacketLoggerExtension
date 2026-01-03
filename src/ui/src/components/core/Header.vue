@@ -1,9 +1,10 @@
 <script setup>
-import ConnectionStatus from '@/components/ConnectionStatus.vue';
-import { ref, watch } from 'vue';
+import ConnectionStatus from '@/components/Util/ConnectionStatus.vue';
+import { ref, useTemplateRef, watch } from 'vue';
 import { ConnectionHandler } from '@/utils/connection-handler';
 import { eventListener } from '@/utils/misc';
 import { EventBus } from '@/utils/event-bus';
+import SettingsModal from "@/components/SettingsModal.vue";
 
 const initialConnections = []
 for (const [id, connection] of Object.entries(ConnectionHandler.connections)) {
@@ -17,6 +18,7 @@ for (const [id, connection] of Object.entries(ConnectionHandler.connections)) {
 const connections = ref(initialConnections);
 const activeConnectionId = ref(ConnectionHandler.getActiveConnectionId());
 const query = ref('');
+const settingsModal = useTemplateRef('settings-modal');
 
 function onConnectionChanged (event) {
   const connectionInfo = ConnectionHandler.getConnection(event.detail);
@@ -52,13 +54,16 @@ watch(() => query.value, (newQuery) => {
   EventBus.$emit('packet-filter', newQuery)
 });
 
+function settingsClick() {
+  settingsModal.value.show();
+}
 </script>
 
 <template>
   <header class="flex-shrink-0">
     <ul class="flex-fill nav nav-tabs" id="tabs">
       <li class="nav-item">
-        <button class="nav-link" title="Settings"><i class="bi bi-wrench"></i></button>
+        <button class="nav-link" title="Settings" @click="settingsClick"><i class="bi bi-wrench"></i></button>
       </li>
       <li v-for="connection in connections" class="nav-item">
         <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)" :title="connection.id">
@@ -70,10 +75,11 @@ watch(() => query.value, (newQuery) => {
         <ConnectionStatus />
       </li>
     </ul>
-    <!-- Search -->
     <div class="input-group">
       <span class="input-group-text" id="addon-search"><i class="bi bi-search"></i></span>
       <input v-model="query" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="addon-search">
     </div>
   </header>
+
+  <SettingsModal ref="settings-modal" />
 </template>

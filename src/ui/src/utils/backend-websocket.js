@@ -37,7 +37,7 @@ class BackendWebSocketHandler extends EventTarget {
     }
 
     console.log('Attempting to reconnect to WebSocket...')
-    this.socket = new WebSocket('ws://' + location.host + '/messaging')
+    this.socket = new WebSocket('ws://' + location.host + '/api/messaging')
 
     this.socket.onopen = (event) => {
       console.log('Connected to WebSocket')
