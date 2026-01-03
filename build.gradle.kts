@@ -7,7 +7,7 @@ val id = project.property("id") as String
 val extensionName = project.property("name") as String
 val author = project.property("author") as String
 val version = project.version as String
-val geyserApiVersion = "2.9.0"
+val geyserApiVersion = "2.9.2"
 
 val bedrockProtocolVersion = "3.0.0.Beta10-20251014.180344-2"
 val undertowVersion = "2.3.20.Final"
