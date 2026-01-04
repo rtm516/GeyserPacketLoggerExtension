@@ -32,7 +32,6 @@ import org.geysermc.mcprotocollib.network.packet.Packet;
 import org.geysermc.mcprotocollib.network.packet.PacketRegistry;
 import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
 import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
-import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAnimatePacket;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -104,7 +103,31 @@ public class PacketLoggerExtension implements Extension {
     }
 
     private void setupJava(SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) throws NoSuchFieldException, IllegalAccessException {
+        PacketRegistry packetRegistry = MinecraftCodec.CODEC.getCodec(ProtocolState.GAME); // TODO Double check we get this from geyser not shaded
 
+        Field clientboundField = PacketRegistry.class.getDeclaredField("clientbound");
+        clientboundField.setAccessible(true);
+
+        int packetCount = ((Int2ObjectMap<PacketDefinition<? extends Packet>>) clientboundField.get(packetRegistry)).size();
+
+        this.logger().info("Defining " + packetCount + " channels for Java " + MinecraftCodec.CODEC.getMinecraftVersion() + " (" + MinecraftCodec.CODEC.getProtocolVersion() + ") for packet logging...");
+
+        for (int packetId = 0; packetId < packetCount; packetId++) {
+            PacketDefinition<? extends Packet> definition = packetRegistry.getClientboundDefinition(packetId);
+            if (definition == null) continue; // Skip undefined packet IDs
+//            this.logger().debug(packetId + " -> " + definition.getPacketClass().getSimpleName());
+
+//            if (definition.getPacketClass() != ClientboundSystemChatPacket.class) continue;
+
+            PacketChannel packetChannel = PacketChannel.java(this, packetId, definition.getPacketClass());
+            event.define(packetChannel, MessageCodec.provided(ByteBuf.class), Message.Packet.of(MessageBuffer.Wrapped::buffer, definition::newInstance))
+                .protocolState(org.geysermc.geyser.api.network.ProtocolState.GAME)
+                .clientbound(message -> {
+                    packetLog.log(PacketSide.JAVA, MessageDirection.CLIENTBOUND, message.packet(), packetChannel.packetId());
+                    return MessageHandler.State.UNHANDLED;
+                })
+                .register();
+        }
     }
 
     @Subscribe
