@@ -1,9 +1,8 @@
-package org.geyser.extension.packetlogger.utils;
+package org.geyser.extension.packetlogger.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

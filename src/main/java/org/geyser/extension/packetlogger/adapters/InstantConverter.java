@@ -1,4 +1,4 @@
-package org.geyser.extension.packetlogger.utils;
+package org.geyser.extension.packetlogger.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

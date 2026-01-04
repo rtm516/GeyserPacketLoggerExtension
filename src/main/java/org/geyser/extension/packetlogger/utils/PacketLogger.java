@@ -1,6 +1,5 @@
 package org.geyser.extension.packetlogger.utils;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
 import org.geyser.extension.packetlogger.Constants;
 import org.geyser.extension.packetlogger.types.PacketSide;

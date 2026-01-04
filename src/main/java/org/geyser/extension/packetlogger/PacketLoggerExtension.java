@@ -1,12 +1,8 @@
 package org.geyser.extension.packetlogger;
 
-import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
-import org.cloudburstmc.protocol.bedrock.codec.BedrockPacketDefinition;
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
+import org.geyser.extension.packetlogger.listeners.BedrockChannelListener;
+import org.geyser.extension.packetlogger.listeners.JavaChannelListener;
 import org.geyser.extension.packetlogger.types.messages.AuthData;
-import org.geyser.extension.packetlogger.types.PacketSide;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
 import org.geyser.extension.packetlogger.types.messages.GenericData;
 import org.geyser.extension.packetlogger.utils.PacketLogger;
@@ -20,21 +16,8 @@ import org.geysermc.geyser.api.event.bedrock.SessionLoginEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserShutdownEvent;
 import org.geysermc.geyser.api.extension.Extension;
-import org.geysermc.geyser.api.network.MessageDirection;
-import org.geysermc.geyser.api.network.PacketChannel;
-import org.geysermc.geyser.api.network.message.Message;
-import org.geysermc.geyser.api.network.message.MessageBuffer;
-import org.geysermc.geyser.api.network.message.MessageCodec;
-import org.geysermc.geyser.api.network.message.MessageHandler;
-import org.geysermc.geyser.network.GameProtocol;
-import org.geysermc.mcprotocollib.network.codec.PacketDefinition;
-import org.geysermc.mcprotocollib.network.packet.Packet;
-import org.geysermc.mcprotocollib.network.packet.PacketRegistry;
-import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
-import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,63 +54,8 @@ public class PacketLoggerExtension implements Extension {
         PacketLogger packetLog = new PacketLogger(sessionsFolder, event.connection(), this.logger(), webApplication);
         packetLoggers.put(String.valueOf(event.connection().hashCode()), packetLog);
 
-        setupBedrock(event, packetLog);
-        setupJava(event, packetLog);
-    }
-
-    private void setupBedrock(SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) throws NoSuchFieldException, IllegalAccessException {
-        // TODO Get this using some form of API when available
-        // TODO Change this post login incase they use a different protocol version
-        BedrockCodec codec = GameProtocol.getBedrockCodec(GameProtocol.DEFAULT_BEDROCK_PROTOCOL);
-
-        Field packetsByIdField = BedrockCodec.class.getDeclaredField("packetsById");
-        packetsByIdField.setAccessible(true);
-
-        int packetCount = ((BedrockPacketDefinition<? extends BedrockPacket>[]) packetsByIdField.get(codec)).length;
-
-        this.logger().info("Defining " + packetCount + " channels for Bedrock " + codec.getMinecraftVersion() + " (" + codec.getProtocolVersion() + ") for packet logging...");
-
-        for (int packetId = 0; packetId < packetCount; packetId++) {
-            BedrockPacketDefinition<? extends BedrockPacket> definition = codec.getPacketDefinition(packetId);
-            if (definition == null) continue; // Skip undefined packet IDs
-            BedrockPacket packet = definition.getFactory().get();
-
-            PacketChannel packetChannel = PacketChannel.bedrock(this, packetId, packet.getClass());
-            event.define(packetChannel, Message.Packet.of(() -> packet))
-                .bidirectional((message, direction) -> {
-                    packetLog.log(PacketSide.BEDROCK, direction, message.packet(), packetChannel.packetId());
-                    return MessageHandler.State.UNHANDLED;
-                })
-                .register();
-        }
-    }
-
-    private void setupJava(SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) throws NoSuchFieldException, IllegalAccessException {
-        PacketRegistry packetRegistry = MinecraftCodec.CODEC.getCodec(ProtocolState.GAME); // TODO Double check we get this from geyser not shaded
-
-        Field clientboundField = PacketRegistry.class.getDeclaredField("clientbound");
-        clientboundField.setAccessible(true);
-
-        int packetCount = ((Int2ObjectMap<PacketDefinition<? extends Packet>>) clientboundField.get(packetRegistry)).size();
-
-        this.logger().info("Defining " + packetCount + " channels for Java " + MinecraftCodec.CODEC.getMinecraftVersion() + " (" + MinecraftCodec.CODEC.getProtocolVersion() + ") for packet logging...");
-
-        for (int packetId = 0; packetId < packetCount; packetId++) {
-            PacketDefinition<? extends Packet> definition = packetRegistry.getClientboundDefinition(packetId);
-            if (definition == null) continue; // Skip undefined packet IDs
-//            this.logger().debug(packetId + " -> " + definition.getPacketClass().getSimpleName());
-
-//            if (definition.getPacketClass() != ClientboundSystemChatPacket.class) continue;
-
-            PacketChannel packetChannel = PacketChannel.java(this, packetId, definition.getPacketClass());
-            event.define(packetChannel, MessageCodec.provided(ByteBuf.class), Message.Packet.of(MessageBuffer.Wrapped::buffer, definition::newInstance))
-                .protocolState(org.geysermc.geyser.api.network.ProtocolState.GAME)
-                .clientbound(message -> {
-                    packetLog.log(PacketSide.JAVA, MessageDirection.CLIENTBOUND, message.packet(), packetChannel.packetId());
-                    return MessageHandler.State.UNHANDLED;
-                })
-                .register();
-        }
+        BedrockChannelListener.setup(this, event, packetLog);
+        JavaChannelListener.setup(this, event, packetLog);
     }
 
     @Subscribe
