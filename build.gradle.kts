@@ -9,9 +9,6 @@ val author = project.property("author") as String
 val version = project.version as String
 val geyserApiVersion = "2.9.2"
 
-val bedrockProtocolVersion = "3.0.0.Beta10-20251014.180344-2"
-val undertowVersion = "2.3.20.Final"
-
 repositories {
     mavenLocal()
 
@@ -27,17 +24,12 @@ dependencies {
     compileOnly("org.geysermc.geyser:api:$geyserApiVersion-SNAPSHOT")
     compileOnly("org.geysermc.geyser:core:$geyserApiVersion-SNAPSHOT")
 
-    // Bedrock protocol libraries
-    compileOnly("org.cloudburstmc.protocol:common:$bedrockProtocolVersion")
-    compileOnly("org.cloudburstmc.protocol:bedrock-codec:$bedrockProtocolVersion")
-    compileOnly("org.cloudburstmc.protocol:bedrock-connection:$bedrockProtocolVersion")
+    compileOnly(libs.bundles.bedrock)
+    compileOnly(libs.bundles.java)
+    compileOnly(libs.gson)
+    compileOnly(libs.adventure.text.serializer.gson)
 
-    // Gson for JSON handling
-    compileOnly("com.google.code.gson:gson:2.3.1")
-
-    // Undertow for web server capabilities
-    implementation("io.undertow:undertow-core:$undertowVersion")
-    implementation("io.undertow:undertow-websockets-jsr:${undertowVersion}")
+    implementation(libs.bundles.undertow)
 }
 
 tasks.shadowJar {
