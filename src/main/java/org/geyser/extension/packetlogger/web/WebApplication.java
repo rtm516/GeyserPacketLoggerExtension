@@ -85,7 +85,7 @@ public class WebApplication {
     public void broadcastMessage(WebSocketMessage message) {
         try {
             broadcastMessage(Constants.GSON.toJson(message));
-        } catch (JsonIOException e) {
+        } catch (JsonIOException | UnsupportedOperationException e) {
             logger.severe("Failed to serialize message for broadcasting: " + e.getMessage());
         }
     }

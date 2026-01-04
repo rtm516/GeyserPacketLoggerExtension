@@ -1,15 +1,15 @@
 package org.geyser.extension.packetlogger.utils;
 
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
 import org.geyser.extension.packetlogger.Constants;
-import org.geyser.extension.packetlogger.types.PacketDirection;
 import org.geyser.extension.packetlogger.types.PacketSide;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
 import org.geyser.extension.packetlogger.types.messages.PacketData;
 import org.geyser.extension.packetlogger.web.WebApplication;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
+import org.geysermc.geyser.api.network.MessageDirection;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class PacketLogger {
         }
     }
 
-    public void log(PacketSide side, PacketDirection direction, BedrockPacket packet, int packetId) {
+    public void log(PacketSide side, MessageDirection direction, Object packet, int packetId) {
         if (!hasBeenRenamed && packet instanceof PlayStatusPacket) {
             moveLog();
         }

@@ -1,10 +1,11 @@
 package org.geyser.extension.packetlogger;
 
+import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockPacketDefinition;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.geyser.extension.packetlogger.types.messages.AuthData;
-import org.geyser.extension.packetlogger.types.PacketDirection;
 import org.geyser.extension.packetlogger.types.PacketSide;
 import org.geyser.extension.packetlogger.types.WebSocketMessage;
 import org.geyser.extension.packetlogger.types.messages.GenericData;
@@ -19,10 +20,19 @@ import org.geysermc.geyser.api.event.bedrock.SessionLoginEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserShutdownEvent;
 import org.geysermc.geyser.api.extension.Extension;
+import org.geysermc.geyser.api.network.MessageDirection;
 import org.geysermc.geyser.api.network.PacketChannel;
 import org.geysermc.geyser.api.network.message.Message;
+import org.geysermc.geyser.api.network.message.MessageBuffer;
+import org.geysermc.geyser.api.network.message.MessageCodec;
 import org.geysermc.geyser.api.network.message.MessageHandler;
 import org.geysermc.geyser.network.GameProtocol;
+import org.geysermc.mcprotocollib.network.codec.PacketDefinition;
+import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.packet.PacketRegistry;
+import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
+import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAnimatePacket;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -85,19 +95,15 @@ public class PacketLoggerExtension implements Extension {
 
             PacketChannel packetChannel = PacketChannel.bedrock(this, packetId, packet.getClass());
             event.define(packetChannel, Message.Packet.of(() -> packet))
-                .serverbound(message -> {
-                    packetLog.log(PacketSide.BEDROCK, PacketDirection.SERVERBOUND, message.packet(), packetChannel.packetId());
-                    return MessageHandler.State.UNHANDLED;
-                })
-                .clientbound(message -> {
-                    packetLog.log(PacketSide.BEDROCK, PacketDirection.CLIENTBOUND, message.packet(), packetChannel.packetId());
+                .bidirectional((message, direction) -> {
+                    packetLog.log(PacketSide.BEDROCK, direction, message.packet(), packetChannel.packetId());
                     return MessageHandler.State.UNHANDLED;
                 })
                 .register();
         }
     }
 
-    private  void setupJava(SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) {
+    private void setupJava(SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) throws NoSuchFieldException, IllegalAccessException {
 
     }
 
