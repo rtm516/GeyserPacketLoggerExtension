@@ -27,9 +27,14 @@ public class BedrockChannelListener {
     }
 
     public static void setup(Extension extension, SessionDefineNetworkChannelsEvent event, PacketLogger packetLog) throws NoSuchFieldException, IllegalAccessException {
-        // TODO Get this using some form of API when available
-        // TODO Change this post login incase they use a different protocol version
-        BedrockCodec codec = GameProtocol.getBedrockCodec(GameProtocol.DEFAULT_BEDROCK_PROTOCOL);
+        if (event.state() != SessionDefineNetworkChannelsEvent.State.INITIALIZED) return;
+
+        int protocolVersion = event.connection().protocolVersion();
+        if (protocolVersion == 0) {
+            protocolVersion = GameProtocol.DEFAULT_BEDROCK_PROTOCOL;
+        }
+
+        BedrockCodec codec = GameProtocol.getBedrockCodec(protocolVersion);
 
         int packetCount = ((BedrockPacketDefinition<? extends BedrockPacket>[]) packetsByIdField.get(codec)).length;
 

@@ -48,7 +48,9 @@ public class JavaChannelListener {
     }
 
     private static void setupState(Extension extension,SessionDefineNetworkChannelsEvent event, PacketLogger packetLog, ProtocolState protocolState) throws NoSuchFieldException, IllegalAccessException {
-        PacketRegistry packetRegistry = MinecraftCodec.CODEC.getCodec(protocolState); // TODO Double check we get this from geyser not shaded
+        if (event.state() != SessionDefineNetworkChannelsEvent.State.INITIALIZED) return;
+
+        PacketRegistry packetRegistry = MinecraftCodec.CODEC.getCodec(protocolState);
 
         int clientboundPacketCount = ((Int2ObjectMap<PacketDefinition<? extends Packet>>) clientboundField.get(packetRegistry)).size();
         int serverboundPacketCount = ((Int2ObjectMap<PacketDefinition<? extends Packet>>) serverboundField.get(packetRegistry)).size();
