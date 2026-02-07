@@ -1,4 +1,4 @@
-package org.geyser.extension.packetlogger.adapters;
+package org.geyser.extension.packetlogger.gson;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

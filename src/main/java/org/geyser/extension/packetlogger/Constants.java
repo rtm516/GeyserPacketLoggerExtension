@@ -5,18 +5,22 @@ import com.google.gson.GsonBuilder;
 import io.netty.buffer.ByteBuf;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.json.JSONOptions;
-import org.geyser.extension.packetlogger.adapters.ByteBufAdapter;
-import org.geyser.extension.packetlogger.adapters.ByteBufferAdapter;
-import org.geyser.extension.packetlogger.adapters.ColorAdapter;
-import org.geyser.extension.packetlogger.adapters.InstantConverter;
-import org.geyser.extension.packetlogger.adapters.OptionalIntAdapter;
-import org.geyser.extension.packetlogger.adapters.RSAPublicKeyAdapter;
+import org.geyser.extension.packetlogger.gson.ByteBufAdapter;
+import org.geyser.extension.packetlogger.gson.ByteBufferAdapter;
+import org.geyser.extension.packetlogger.gson.ColorAdapter;
+import org.geyser.extension.packetlogger.gson.InstantConverter;
+import org.geyser.extension.packetlogger.gson.MetadataTypeSerializer;
+import org.geyser.extension.packetlogger.gson.OptionalIntAdapter;
+import org.geyser.extension.packetlogger.gson.OptionalSerializer;
+import org.geyser.extension.packetlogger.gson.RSAPublicKeyAdapter;
+import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataType;
 
 import java.awt.Color;
 import java.nio.ByteBuffer;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 public class Constants {
@@ -36,6 +40,8 @@ public class Constants {
             .registerTypeAdapter(Color.class, new ColorAdapter())
             .registerTypeAdapter(OptionalInt.class, new OptionalIntAdapter())
             .registerTypeHierarchyAdapter(RSAPublicKey.class, new RSAPublicKeyAdapter())
+            .registerTypeAdapter(Optional.class, new OptionalSerializer<>())
+            .registerTypeHierarchyAdapter(MetadataType.class, new MetadataTypeSerializer<>())
             .disableHtmlEscaping()
         ).create();
 
@@ -63,6 +69,10 @@ public class Constants {
         "ClientboundRotateHeadPacket",
         "ClientboundSetEntityMotionPacket",
         "ClientboundSectionBlocksUpdatePacket",
-        "ClientboundMoveEntityPosRotPacket"
+        "ClientboundMoveEntityPosRotPacket",
+        "ServerboundClientTickEndPacket",
+        "ServerboundMovePlayerPosPacket",
+        "ServerboundMovePlayerRotPacket",
+        "ClientboundMoveEntityRotPacket"
     );
 }
