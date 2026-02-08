@@ -14,6 +14,6 @@ eventListener(BackendWebSocket, 'disconnected', onStatusChanged);
 </script>
 
 <template>
-  <span v-if="connected" class="badge text-bg-success">Connected</span>
-  <span v-else class="badge text-bg-danger">Disconnected</span>
+  <img v-if="connected" class="icon" src="@/assets/icons/minecraft/Ping_Green.png" title="Connected" alt="Connected" />
+  <img v-else class="icon" src="@/assets/icons/minecraft/Ping_Red.png" title="Disconnected" alt="Disconnected" />
 </template>

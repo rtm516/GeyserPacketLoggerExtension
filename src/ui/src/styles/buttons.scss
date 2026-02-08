@@ -1,0 +1,84 @@
+@use 'fonts';
+@use 'colors';
+@use 'mixins';
+
+// TODO Work out the magic numbers I have in here and replace them with variables
+.btn {
+  font-size: 20px;
+  font-family: fonts.$family-7;
+  color: #FFFFFF;
+  padding: 7px 50px 13px 50px;
+  border: 2px solid colors.$btn-primary-border;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+
+  line-height: normal;
+
+  &:active, &.active {
+    &:not(.disabled, :disabled) {
+      margin-top: 2px;
+      padding-top: 7px;
+      padding-bottom: 11px;
+    }
+  }
+
+  &.disabled, &:disabled {
+    border: 2px solid #8C8D90 !important;
+    @include mixins.mcOutline(#D0D1D4, #D0D1D4, #B1B2B5, true);
+    cursor: not-allowed;
+  }
+}
+
+.btn-thin {
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+.btn-hero {
+  font-family: fonts.$family-10;
+  text-shadow: 2px 2px rgba(0, 0, 0, 0.25);
+  padding-bottom: 10px;
+}
+
+.btn-primary {
+  @include mixins.mcOutline(#3C8527, #4F913C, #1D4D13);
+
+  &:hover {
+    @include mixins.mcOutline(#52A535, #75B75D, #1D4D13);
+  }
+
+  &:active, &.active {
+    @include mixins.mcOutline(#2A641C, #558349);
+  }
+}
+
+.btn-secondary {
+  color: #000000;
+
+  @include mixins.mcOutline(#D0D1D4, #FAFAFB, #58585A);
+
+  &:hover {
+    @include mixins.mcOutline(#F4F6F9, #FEFEFE, #58585A);
+  }
+
+  &:active, &.active {
+    @include mixins.mcOutline(#B1B2B5, #F7F7F7);
+  }
+}
+
+.btn-destructive {
+  @include mixins.mcOutline(#D93636, #E15E5E, #B31B1B);
+
+  &:hover {
+    @include mixins.mcOutline(#FF8080, #FF9999, #B31B1B);
+  }
+
+  &:active, &.active {
+    @include mixins.mcOutline(#B31B1B, #C24949);
+  }
+}
+
+%btn-extend {
+  @extend .btn;
+}

@@ -1,0 +1,40 @@
+@use 'buttons';
+@use 'mixins';
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tabs-block .tab {
+  flex-grow: 1;
+}
+
+.tab {
+  @extend %btn-extend;
+
+  $bottom: #313233;
+
+  @include mixins.mcOutline(#48494A, #6A6C70, $bottom);
+
+  &:hover {
+    @include mixins.mcOutline(#67686A, #6A6C70, $bottom);
+  }
+
+  &.active {
+    @include mixins.mcOutline(#313233, #464748);
+    position: relative;
+
+    &:after {
+      content: '';
+      width: 48px;
+      height: 2px;
+      background: #FFFFFF;
+      position: absolute;
+      bottom: 0px;
+      display: block;
+      transform: translateX(-50%);
+      left: 50%;
+    }
+  }
+}

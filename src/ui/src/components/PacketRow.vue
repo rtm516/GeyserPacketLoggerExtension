@@ -9,7 +9,7 @@ const props = defineProps({
 /** @type { { time: string, side: 'BEDROCK' | 'JAVA', direction: 'SERVERBOUND' | 'CLIENTBOUND', packetName: string, packetId: number, packetData: any } } */
 const packetInfo = props.packetInfo
 
-const prettyDirection = packetInfo.direction === 'SERVERBOUND' ? 'C → S' : packetInfo.direction === 'CLIENTBOUND' ? 'S → C' : '?'
+const prettyDirection = packetInfo.direction === 'SERVERBOUND' ? 'C => S' : packetInfo.direction === 'CLIENTBOUND' ? 'S => C' : '?'
 </script>
 
 <template>

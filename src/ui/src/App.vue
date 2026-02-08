@@ -11,7 +11,7 @@ BackendWebSocket.connect();
 <template>
   <Header />
   <Main />
-  <Footer />
+  <!-- <Footer /> -->
 </template>
 
 <style scoped>

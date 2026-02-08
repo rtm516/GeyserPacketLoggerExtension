@@ -5,7 +5,7 @@ import 'bootstrap'
 
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
 
-import './style.css'
+import './styles/_index.scss'
 import App from './App.vue'
 
 createApp(App).mount('#app')

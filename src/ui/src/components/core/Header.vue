@@ -61,23 +61,23 @@ function settingsClick() {
 
 <template>
   <header class="flex-shrink-0">
-    <ul class="flex-fill nav nav-tabs" id="tabs">
-      <li class="nav-item">
-        <button class="nav-link" title="Settings" @click="settingsClick"><i class="bi bi-wrench"></i></button>
-      </li>
-      <li v-for="connection in connections" class="nav-item">
-        <button class="nav-link d-flex align-items-center" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)" :title="connection.id">
-          {{ connection.username || "Unknown" }}
-          <span class="ms-1 p-2 border rounded-circle d-inline-block" :class="{ 'bg-success': connection.active, 'bg-danger': !connection.active }"></span>
-        </button>
-      </li>
-      <li class="d-flex align-items-center ms-auto me-3">
-        <ConnectionStatus />
-      </li>
-    </ul>
-    <div class="input-group">
-      <span class="input-group-text" id="addon-search"><i class="bi bi-search"></i></span>
-      <input v-model="query" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="addon-search">
+    <div class="flex-fill title-bar">
+      <button class="left" title="Settings" @click="settingsClick"><img src="@/assets/icons/minecraft/settings_pause_menu_icon.png" alt="Settings"></button>
+      Geyser Packet Logger
+      <div class="right"><ConnectionStatus /></div>
+    </div>
+
+    <div class="tabs tabs-block">
+      <button v-for="connection in connections" class="tab d-flex align-items-center justify-content-center" :key="connection.id" :class="{active: activeConnectionId == connection.id}" @click="(e) => selectConnection(e, connection.id)" :title="connection.id">
+        {{ connection.username || "Unknown" }}
+        <img v-if="connection.active" class="ms-1 icon" src="@/assets/icons/minecraft/player_online_icon.png" title="Active" alt="Active" />
+        <img v-else class="ms-1 icon" src="@/assets/icons/minecraft/player_offline_icon.png" title="Inactive" alt="Inactive" />
+      </button>
+    </div>
+
+    <!-- TODO Remove the need for the wrapper div here -->
+    <div class="d-flex">
+      <input v-model="query" type="text" class="input flex-fill" placeholder="Search" id="search">
     </div>
   </header>
 

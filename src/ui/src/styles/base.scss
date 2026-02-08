@@ -1,0 +1,31 @@
+@use 'fonts';
+@use 'colors';
+@use 'mixins';
+
+body {
+  font-family: fonts.$family-7;
+}
+
+/* Scroll start */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #58585A;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  background-clip: content-box;
+}
+
+body::-webkit-scrollbar-track {
+  background: #58585A;
+  border-left: 4px solid #313233;
+  border-right: 4px solid #313233;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid colors.$btn-primary-border;
+  @include mixins.mcOutline(#E6E8EB, #FCFDFD, #58585A);
+}
+/* Scroll end */

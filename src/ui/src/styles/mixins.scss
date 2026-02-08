@@ -1,0 +1,13 @@
+@mixin mcOutline($background, $outline, $bottom: null, $important: false) {
+  @if ($important) {
+    background-color: $background !important;
+    box-shadow: inset 0 -4px $bottom, inset 0 -6px $outline, inset 0 0 0 2px $outline !important;
+  } @else {
+    background-color: $background;
+    @if ($bottom) {
+      box-shadow: inset 0 -4px $bottom, inset 0 -6px $outline, inset 0 0 0 2px $outline;
+    } @else {
+      box-shadow: inset 0 0 0 2px $outline;
+    }
+  }
+}
